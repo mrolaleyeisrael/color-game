@@ -14,6 +14,8 @@ export default function ColorGame() {
   const [score, setScore] = useState(0);
   const [gameStatus, setGameStatus] = useState('');
   const [isGameActive, setIsGameActive] = useState(true);
+  const [isCelebrating, setIsCelebrating] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
 
   const generateNewGame = () => {
     const newTarget = colors[Math.floor(Math.random() * colors.length)];
@@ -30,6 +32,8 @@ export default function ColorGame() {
     setColorOptions(options.sort(() => Math.random() - 0.5));
     setGameStatus('');
     setIsGameActive(true);
+    setIsCelebrating(false);
+    setIsFadingOut(false);
   };
 
   const handleGuess = (selectedColor: string) => {
@@ -38,9 +42,12 @@ export default function ColorGame() {
     if (selectedColor === targetColor) {
       setScore(prev => prev + 1);
       setGameStatus('Correct! Well done! 🎉');
+      setIsCelebrating(true);
       setIsGameActive(false);
     } else {
       setGameStatus('Wrong! Try again! ❌');
+      setIsFadingOut(true);
+      setTimeout(() => setIsFadingOut(false), 500); // Reset after animation
     }
   };
 
@@ -52,7 +59,8 @@ export default function ColorGame() {
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
       <div
         data-testid="colorBox"
-        className="w-64 h-64 rounded-lg shadow-lg mb-8 transition-all duration-300"
+        className={`w-64 h-64 rounded-lg shadow-lg mb-8 transition-all duration-300 ${isCelebrating ? 'celebrate' : ''
+          }`}
         style={{ backgroundColor: targetColor }}
       ></div>
 
@@ -70,7 +78,8 @@ export default function ColorGame() {
             data-testid="colorOption"
             onClick={() => handleGuess(color)}
             className={`h-20 rounded-lg shadow-md transition-all duration-200 hover:scale-105 
-              ${isGameActive ? 'hover:shadow-lg' : 'opacity-75 cursor-not-allowed'}`}
+              ${isGameActive ? 'hover:shadow-lg' : 'opacity-75 cursor-not-allowed'}
+              ${isFadingOut && color !== targetColor ? 'fade-out' : ''}`}
             style={{ backgroundColor: color }}
             disabled={!isGameActive}
           ></button>
